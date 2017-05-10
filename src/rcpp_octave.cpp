@@ -598,8 +598,9 @@ octave_value octave_feval(const string& fname, const octave_value_list& args, in
 	catch(const octave::execution_exception& e)
 	{
 			std::ostringstream err;
-			err << R_PACKAGE_NAME" - Octave error: execution_exception";
-			if(!e.info().empty()) err << "(" << e.info() << ")";
+			err << R_PACKAGE_NAME" - Octave error";
+			if(!e.info().empty()) err << " (" << e.info() << ")";
+			else err << " (no further information available)";
 			recover_from_exception_rcppoct();
 			throw std::string(err.str());
 	}

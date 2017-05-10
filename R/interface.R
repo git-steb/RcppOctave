@@ -289,7 +289,6 @@ sourceExamples <- function(file){
 rcppoctave <- function(..., plugin = 'RcppOctave'){
 	if( !requireNamespace('inline') )
 		stop("Package 'inline' is required to define RcppOctave functions.")
-	qlibrary('inline')
   # Fix issue when runnin in unit tests
   # See: https://github.com/hadley/testthat/issues/144
   oval <- Sys.getenv('R_TESTS')
@@ -306,7 +305,6 @@ inlineCxxPlugin <- function(){
 	
 	if( !requireNamespace('inline') )
 		stop("Package 'inline' is required to define RcppOctave functions.")
-	qlibrary('inline')
 	p <- inline::getPlugin('Rcpp')
 	p0 <- list(includes = '\n#include <RcppOctave.h>\n'
 		, LinkingTo = c('Rcpp', 'RcppOctave')
