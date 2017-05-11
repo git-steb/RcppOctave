@@ -164,11 +164,17 @@ test.redirection <- function(){
     oerr <- "Error : RcppOctave::o_get - Could not find an Octave object named 'aaa'.\n       Match(es): aaaa\n\n"
     checkTrue(grepl(oerr, geterrmessage(), fixed = TRUE), paste("Octave error message is correctly passed to R: ", "'", unprint(geterrmessage()), "'", sep=''))
     checkException(.CallOctave('error', oerr), "R error is raised by Octave error (buffer.std = 2)")
-    oerr2 <- 'Error in .CallOctave(\"error\", oerr) : \n  RcppOctave - Octave error (no further information available)\n'
+    # v4.2.1
+    #oerr2 <- 'Error in .CallOctave(\"error\", oerr) : \n  RcppOctave - Octave error (no further information available)\n'
+    # v3.8.1
+    oerr2 <- 'Error in .CallOctave("error", oerr) : \n  RcppOctave - error in Octave function `error`:\n  Error : RcppOctave::o_get - Could not find an Octave object named \'aaa\'.\n       Match(es): aaaa\n\n\n'
     checkTrue(grepl(oerr2, geterrmessage(), fixed = TRUE), paste("Octave error message is correctly passed to R (buffer.std = 2): ", "'", unprint(geterrmessage()), "'", sep=''))
     # no buffering
     checkException(.CallOctave('error', oerr, buffer.std = -2), "R error is raised by Octave error even when stderr is not buffered")
-    oerr3 <- 'Error in .CallOctave(\"error\", oerr, buffer.std = -2) : \n  RcppOctave - Octave error (no further information available)\n'
+    # v4.2.1
+    #oerr3 <- 'Error in .CallOctave(\"error\", oerr, buffer.std = -2) : \n  RcppOctave - Octave error (no further information available)\n'
+    # v3.8.1
+    oerr3 <- 'Error in .CallOctave(\"error\", oerr, buffer.std = -2) : \n  RcppOctave - error in Octave function `error`:\n  Error : RcppOctave::o_get - Could not find an Octave object named \'aaa\'.\n       Match(es): aaaa\n\n\n'
     checkTrue(grepl(oerr3, geterrmessage(), fixed = TRUE), paste("Octave error message is still passed to R if stderr is not buffered:", "'", unprint(geterrmessage()), "'", sep=''))
     
     # Warnings
