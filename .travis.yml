@@ -9,10 +9,10 @@ env:
 - OVERSION="4.0" GITHUB_USER="git-steb" GITHUB_REPO="RcppOctave" GITHUB_BRANCH="ci-setup"
 
 before_install:
-- docker build https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/dockerfiles/trusty_Octave${OVERSION}_R3.4/Dockerfile -t trusty/R3.4-Octave${OVERSION}
-- docker run -d -p 127.0.0.1:80:4567 trusty/R3.4-Octave${OVERSION} /bin/sh -c "cd /root/RcppOctave; R CMD build . --no-build-vignettes;"
+- docker build https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/dockerfiles/trusty_Octave${OVERSION}_R3.4/Dockerfile -t trusty/r3.4-octave${OVERSION}
+- docker run -d -p 127.0.0.1:80:4567 trusty/r3.4-octave${OVERSION} /bin/sh -c "cd /root/RcppOctave; R CMD build . --no-build-vignettes;"
 - docker ps -a
-- docker run trusty/R3.4-Octave${OVERSION} /bin/sh -c "cd /root/RcppOctave; R CMD build ."
+- docker run trusty/r3.4-octave${OVERSION} /bin/sh -c "cd /root/RcppOctave; R CMD build ."
 
 script:
 - R CMD build .
