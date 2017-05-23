@@ -1,41 +1,22 @@
-# Sample .travis.yml for R projects.
-#
-# See README.md for instructions, or for more configuration options,
-# see the wiki:
-#   https://github.com/craigcitro/r-travis/wiki
-
-os: linux
-dist: trusty
-language: r
 sudo: required
-r_binary_packages:
-  - stringr
-  - devtools
-cache: packages
-r: release
-warnings_are_errors: false
-# Add PPA for testing on multiple octave versions
-addons:
-  apt:
-    sources:
-      - sourceline: 'ppa:kwwette/octaves'
+
+language: c
+
+services:
+- docker
+
+env:
+- OVERSION="3.8"
+- OVERSION="4.0"
+- OVERSION="4.2"
+
 before_install:
-  - sudo apt-get install -y texlive-bibtex-extra
-  - sudo apt-get -qq update
-# multi-version check
-matrix:
-  include:
-    - env: OVERSION="Travis (3.8)"
-      apt_packages: 
-        - liboctave-dev
-    - env: OVERSION="4.0" # 4.0
-      apt_packages:
-        - liboctave4.0-dev
-    - env: OVERSION="4.2" # 4.2
-      before_install:
-        - sudo apt-get install -y texlive-bibtex-extra
-        - sudo add-apt-repository -r ppa:rwky/ppa -y # to avoid conflict with libgraphicsmagick3 (see https://github.com/swig/swig/issues/909)
-        - sudo rm /etc/apt/sources.list.d/rwky*.list* # force complete deletion 
-        - sudo apt-get -qq update
-      apt_packages:
-        - liboctave4.2-dev
+- docker build -f dockerfiles/octave${OVERSION}/Dockerfile . -t trusty/r-octave${OVERSION}
+- docker run -it -d --name builder trusty/r-octave${OVERSION} /bin/sh
+- docker ps -a
+
+script:
+- docker exec -it builder /bin/sh -c "cd /root/repo; R CMD build ."
+- docker exec -it builder /bin/sh -c "cd /root/repo; R CMD check \"${PKG_TARBALL}\" --as-cran --no-manual; echo CHECK_RET=\$? >> /root/env_vars"
+- CHECK_RET=$(docker exec builder /bin/sh -c ". /root/env_vars; echo \$CHECK_RET")
+- docker cp builder:/root/repo/${PKG_TARBALL} .
