@@ -10,6 +10,7 @@ RUN apt-get update \
 	&& apt-get install -y --no-install-recommends \
 		software-properties-common \
 		ed \
+		git \
 		less \
 		locales \
 		vim-tiny \
@@ -34,6 +35,7 @@ RUN apt-get install -y --no-install-recommends \
 		r-base-dev \
 		r-recommended \
 		r-cran-stringr \
+		r-cran-devtools \
 	&& echo 'options(repos = c(CRAN = "https://cran.rstudio.com/"), download.file.method = "wget")' >> /etc/R/Rprofile.site \
 	&& ln -s /usr/lib/R/site-library/littler/examples/install.r /usr/local/bin/install.r \
 	&& ln -s /usr/lib/R/site-library/littler/examples/install2.r /usr/local/bin/install2.r \
@@ -45,23 +47,9 @@ RUN apt-get install -y --no-install-recommends \
 ENV LC_ALL en_US.UTF-8
 ENV LANG en_US.UTF-8
 
-RUN apt-get -y install git
 RUN apt-get install -y texlive-bibtex-extra \
 		texlive-latex-base \
 		texlive-latex-extra \
 		texlive-latex-recommended \
 		texlive-fonts-recommended \
 		texlive-fonts-extra
-
-RUN export OVERSION="4.0"
-RUN apt-add-repository -y "ppa:kwwette/octaves"
-RUN apt-get install -y liboctave$OVERSION-dev
-
-RUN apt-get install -y r-cran-stringr r-cran-devtools
-
-RUN git clone https://github.com/git-steb/RcppOctave /root/RcppOctave
-RUN cd /root/RcppOctave; Rscript -e 'deps <- devtools::dev_package_deps(dependencies = NA);devtools::install_deps(dependencies = TRUE);if (!all(deps$package %in% installed.packages())) { message("missing: ", paste(setdiff(deps$package, installed.packages()), collapse=", ")); q(status = 1, save = "no")}'
-
-RUN cd /root/RcppOctave; R CMD build .
-
-EXPOSE 4567

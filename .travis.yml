@@ -1,17 +1,19 @@
 sudo: required
 
-language: ruby
+language: c
 
 services:
 - docker
 
 env:
-- OVERSION="4.0" GITHUB_USER="git-steb" GITHUB_REPO="RcppOctave" GITHUB_BRANCH="ci-setup"
+- OVERSION="3.8"
+- OVERSION="4.0"
+- OVERSION="4.2"
 
 before_install:
-- docker build https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/dockerfiles/trusty_Octave${OVERSION}_R3.4/Dockerfile -t trusty/r3.4-octave${OVERSION}
-- docker run -d -p 127.0.0.1:80:4567 trusty/r3.4-octave${OVERSION} /bin/sh -c "cd /root/RcppOctave; R CMD build . --no-build-vignettes;"
+- docker build -f dockerfiles/octave${OVERSION}/Dockerfile . -t trusty/r-octave${OVERSION}
+- docker run -d -p 127.0.0.1:80:4567 trusty/r-octave${OVERSION} /bin/sh -c "cd /root/repo"
 - docker ps -a
 
 script:
-- docker run trusty/r3.4-octave${OVERSION} /bin/sh -c "cd /root/RcppOctave; R CMD build ."
+- docker run trusty/r-octave${OVERSION} /bin/sh -c "cd /root/repo; R CMD build ."
