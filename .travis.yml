@@ -11,10 +11,6 @@ sudo: required
 r_binary_packages:
   - stringr
   - devtools
-# Travis Octave version
-env: OVERSION="Travis (3.8)"
-apt_packages: 
-  - liboctave-dev
 cache: packages
 r: release
 warnings_are_errors: false
@@ -26,10 +22,12 @@ addons:
 before_install:
   - sudo apt-get install -y texlive-bibtex-extra
   - sudo apt-get -qq update
-  
 # multi-version check
 matrix:
   include:
+    - env: OVERSION="Travis (3.8)"
+      apt_packages: 
+        - liboctave-dev
     - env: OVERSION="4.0" # 4.0
       apt_packages:
         - liboctave4.0-dev
