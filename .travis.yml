@@ -1,36 +1,22 @@
-# Sample .travis.yml for R projects.
-#
-# See README.md for instructions, or for more configuration options,
-# see the wiki:
-#   https://github.com/craigcitro/r-travis/wiki
-
-os: linux
-dist: trusty
-language: r
 sudo: required
-r_binary_packages:
-  - stringr
-  - devtools
-cache: packages
-r: release
-warnings_are_errors: false
-# Add PPA for testing on multiple octave versions
-addons:
-  apt:
-    sources:
-      - sourceline: 'ppa:kwwette/octaves'
+
+language: ruby
+
+services:
+- docker
+
+env:
+- GITHUB_USER="git-steb"
+- GITHUB_REPO="RcppOctave"
+- GITHUB_BRANCH="ci-setup"
+
+env: OVERSION="4.0"
+
 before_install:
-  - sudo apt-get install -y texlive-bibtex-extra
-  - sudo apt-get -qq update
-# multi-version check
-matrix:
-  include:
-    - env: OVERSION="Travis (3.8)"
-      apt_packages: 
-        - liboctave-dev
-    - env: OVERSION="4.0" # 4.0
-      apt_packages:
-        - liboctave4.0-dev
-    - env: OVERSION="4.2" # 4.2
-      apt_packages:
-        - liboctave4.2-dev
+- docker build https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/dockerfiles/trusty_Octave${OVERSION}_R3.4/Dockerfile -t trusty/R3.4-Octave${OVERSION}
+- docker run -d -p 127.0.0.1:80:4567 trusty/R3.4-Octave${OVERSION} /bin/sh -c "cd /root/RcppOctave; R CMD build . --no-build-vignettes;"
+- docker ps -a
+- docker run trusty/R3.4-Octave${OVERSION} /bin/sh -c "cd /root/RcppOctave; R CMD build ."
+
+script:
+- R CMD build .
