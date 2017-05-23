@@ -6,11 +6,10 @@ services:
 - docker
 
 env:
+- OVERSION="4.0"
 - GITHUB_USER="git-steb"
 - GITHUB_REPO="RcppOctave"
 - GITHUB_BRANCH="ci-setup"
-
-env: OVERSION="4.0"
 
 before_install:
 - docker build https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/${GITHUB_BRANCH}/dockerfiles/trusty_Octave${OVERSION}_R3.4/Dockerfile -t trusty/R3.4-Octave${OVERSION}
