@@ -12,8 +12,9 @@ env:
 
 before_install:
 - docker build -f dockerfiles/octave${OVERSION}/Dockerfile . -t trusty/r-octave${OVERSION}
-- docker run -d -p 127.0.0.1:80:4567 trusty/r-octave${OVERSION} /bin/sh -c "cd /root/repo"
+- docker run -d trusty/r-octave${OVERSION} /bin/sh -c "cd /root/repo"
 - docker ps -a
 
 script:
-- docker run trusty/r-octave${OVERSION} /bin/sh -c "cd /root/repo; R CMD build ."
+- docker run --name builder trusty/r-octave${OVERSION} /bin/sh -c "cd /root/repo; R CMD build ."
+- docker cp builder:/root/repo/RcppOctave_0.18.3.tar.gz .
