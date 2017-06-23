@@ -30,6 +30,7 @@ options(R_CHECK_RUNNING_EXAMPLES_=TRUE) ## roxygen generated flag
 o_config_info()
 # NB: some config variables are not available on all versions
 try( o_config_info('USE_64_BIT_IDX_T') )
+try( o_config_info('ENABLE_64') )
 
 }
 \seealso{

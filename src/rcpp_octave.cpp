@@ -105,7 +105,7 @@ octave_value octave_feval(const string& fname, const octave_value_list& args, in
 inline octave_value octave_feval(const string& fname, const octave_value_list& args
 								, const std::vector<string>& output_names
 								, int buffer = 3){
-		return octave_feval(fname, args, output_names.size(), &output_names, buffer);
+	return octave_feval(fname, args, output_names.size(), &output_names, buffer);
 }
 
 /**
@@ -209,6 +209,9 @@ bool octave_session(bool start=true, bool with_warnings = true, bool verbose = f
 			return true;
 		}
 
+		// setup redirect
+		Redirect redirect(7);
+
 		// terminate interpreter
 #if SWIG_OCTAVE_PREREQ(3,8,0)
 #if !SWIG_OCTAVE_PREREQ(4,2,0)
@@ -223,7 +226,7 @@ bool octave_session(bool start=true, bool with_warnings = true, bool verbose = f
 			if(ex.exit_status() != 0) {
 				std::ostringstream err;
 				err << R_PACKAGE_NAME" - error exiting Octave.";
-				throw std::string(err.str());
+				redirect.flush(err.str().c_str(), true);
 			}
 		}
 #else
@@ -501,6 +504,8 @@ octave_value octave_feval(const string& fname, const octave_value_list& args, in
 
 	// setup catching of stderr to use R stderr own functions
 	Redirect redirect(buffer, true);// delay until calling redirect
+	std::ostringstream err;
+	err << R_PACKAGE_NAME" - error in Octave function `" << fname.c_str() << "`";
 	//
 
 	try {
@@ -597,8 +602,8 @@ octave_value octave_feval(const string& fname, const octave_value_list& args, in
 #if SWIG_OCTAVE_PREREQ(4,2,0)
 	catch(const octave::execution_exception& e)
 	{
-		if(!e.info().empty())
-			REprintf(e.info().c_str());
+		REprintf(R_PACKAGE_NAME" - Octave error: execution_exception\n");
+		if(!e.info().empty()) err << " (" << e.info() << ")";
 		recover_from_exception_rcppoct();
 	}
 #endif
@@ -606,8 +611,6 @@ octave_value octave_feval(const string& fname, const octave_value_list& args, in
 	octave_initialized = false;
 
 	// throw an R error
-	std::ostringstream err;
-	err << R_PACKAGE_NAME" - error in Octave function `" << fname.c_str() << "`";
 	redirect.flush(err.str().c_str(), true);
 
 	return octave_value_list();

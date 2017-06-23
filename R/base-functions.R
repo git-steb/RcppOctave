@@ -152,6 +152,7 @@ o_version <- function(version){
 #' o_config_info()
 #' # NB: some config variables are not available on all versions
 #' try( o_config_info('USE_64_BIT_IDX_T') )
+#' try( o_config_info('ENABLE_64') )
 #' 
 o_config_info <- function(var = c('CC', 'CC_VERSION', 'FC')){
     
