@@ -17,9 +17,9 @@ before_install:
 - docker exec -it builder /bin/sh -c ". /root/build_env; echo PKG_TARBALL=\$(Rscript -e 'pkg <- devtools::as.package(\".\"); cat(paste0(pkg\$package,\"_\",pkg\$version,\".tar.gz\"))') >> /root/build_env"
 
 script:
-- export PKG_TARBALL=$(docker exec -it builder /bin/sh -c ". /root/build_env; echo \$PKG_TARBALL")
+- export PKG_TARBALL=$(docker exec -it builder /bin/sh -c ". /root/build_env; echo -n \$PKG_TARBALL")
 - echo $PKG_TARBALL
 - docker exec -it builder /bin/sh -c ". /root/build_env; R CMD build ."
 - docker exec -it builder /bin/sh -c ". /root/build_env; R CMD check \"\${PKG_TARBALL}\" --as-cran --no-manual; echo CHECK_RET=\$? >> /root/build_env"
-- CHECK_RET=$(docker exec builder /bin/sh -c ". /root/build_env; echo \$CHECK_RET")
+- CHECK_RET=$(docker exec builder /bin/sh -c ". /root/build_env; echo -n \$CHECK_RET")
 - docker cp builder:/root/repo/${PKG_TARBALL} .
