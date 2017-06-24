@@ -11,12 +11,10 @@ env:
 - OVERSION="4.2"
 
 before_install:
-- export PKG_NAME=$(Rscript -e 'cat(paste0(devtools::as.package(".")$package))')
-- export PKG_TARBALL=$(Rscript -e 'pkg <- devtools::as.package("."); cat(paste0(pkg$package,"_",pkg$version,".tar.gz"))')
-- echo \"${PKG_TARBALL}\"
 - docker build -f dockerfiles/octave${OVERSION}/Dockerfile . -t trusty/r-octave${OVERSION}
 - docker run -it -d --name builder trusty/r-octave${OVERSION} /bin/sh
-- docker ps -a
+- export PKG_TARBALL=$(docker exec -it builder /bin/sh -c "cd /root/repo; echo \$(Rscript -e 'pkg <- devtools::as.package(\".\"); cat(paste0(pkg\$package,\"_\",pkg\$version,\".tar.gz\"))')")
+- echo $PKG_TARBALL
 
 script:
 - docker exec -it builder /bin/sh -c "cd /root/repo; R CMD build ."
