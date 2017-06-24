@@ -3,7 +3,7 @@
 FROM docsteb/trusty-r-texlive
 
 RUN export OVERSION="3.8.1 (trusty)" \
-		&& apt-get update -y
+		&& apt-get update -y \
 		&& apt-get install -y --fix-missing liboctave-dev
 
 ADD . /root/repo
