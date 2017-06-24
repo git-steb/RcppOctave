@@ -13,11 +13,13 @@ env:
 before_install:
 - docker build -f dockerfiles/octave${OVERSION}/Dockerfile . -t trusty/r-octave${OVERSION}
 - docker run -it -d --name builder trusty/r-octave${OVERSION} /bin/sh
-- export PKG_TARBALL=$(docker exec -it builder /bin/sh -c "cd /root/repo; echo \$(Rscript -e 'pkg <- devtools::as.package(\".\"); cat(paste0(pkg\$package,\"_\",pkg\$version,\".tar.gz\"))')")
-- echo $PKG_TARBALL
+- docker exec -it builder /bin/sh -c "echo cd /root/repo >> /root/build_env"
+- docker exec -it builder /bin/sh -c ". /root/build_env; echo PKG_TARBALL=\$(Rscript -e 'pkg <- devtools::as.package(\".\"); cat(paste0(pkg\$package,\"_\",pkg\$version,\".tar.gz\"))') >> /root/build_env"
 
 script:
-- docker exec -it builder /bin/sh -c "cd /root/repo; R CMD build ."
-- docker exec -it builder /bin/sh -c "cd /root/repo; R CMD check \"${PKG_TARBALL}\" --as-cran --no-manual; echo CHECK_RET=\$? >> /root/env_vars"
-- CHECK_RET=$(docker exec builder /bin/sh -c ". /root/env_vars; echo \$CHECK_RET")
+- export PKG_TARBALL=$(docker exec -it builder /bin/sh -c ". /root/build_env; echo \$PKG_TARBALL")
+- echo $PKG_TARBALL
+- docker exec -it builder /bin/sh -c ". /root/build_env; R CMD build ."
+- docker exec -it builder /bin/sh -c ". /root/build_env; R CMD check \"\${PKG_TARBALL}\" --as-cran --no-manual; echo CHECK_RET=\$? >> /root/build_env"
+- CHECK_RET=$(docker exec builder /bin/sh -c ". /root/build_env; echo \$CHECK_RET")
 - docker cp builder:/root/repo/${PKG_TARBALL} .
