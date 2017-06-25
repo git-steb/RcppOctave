@@ -1,20 +1,44 @@
+# Sample .travis.yml for R projects.
+#
+# See README.md for instructions, or for more configuration options,
+# see the wiki:
+#   https://github.com/craigcitro/r-travis/wiki
+
+os: linux
+dist: trusty
+language: r
 sudo: required
-
-language: c
-
-services:
-- docker
-
-env:
-- OVERSION="3.8"
-- OVERSION="4.0"
-- OVERSION="4.2"
-
+r_binary_packages:
+  - stringr
+  - devtools
+# Travis Octave version
+env: OVERSION="Travis (3.8)"
+apt_packages: 
+  - liboctave-dev
+cache: packages
+r: release
+warnings_are_errors: false
+# Add PPA for testing on multiple octave versions
+addons:
+  apt:
+    sources:
+      - sourceline: 'ppa:kwwette/octaves'
 before_install:
-- docker build -f dockerfiles/octave${OVERSION}/Dockerfile . -t trusty/r-octave${OVERSION}
-- docker run -d trusty/r-octave${OVERSION} /bin/sh -c "cd /root/repo"
-- docker ps -a
-
-script:
-- docker run --name builder trusty/r-octave${OVERSION} /bin/sh -c "cd /root/repo; R CMD build ."
-- docker cp builder:/root/repo/RcppOctave_0.18.3.tar.gz .
+  - sudo apt-get install -y texlive-bibtex-extra
+  - sudo apt-get -qq update
+  - sudo apt-mark showmanual
+  
+# multi-version check
+matrix:
+  include:
+    - env: OVERSION="4.0" # 4.0
+      apt_packages:
+        - liboctave4.0-dev
+    - env: OVERSION="4.2" # 4.2
+      before_install:
+        - sudo apt-get install -y texlive-bibtex-extra
+        - sudo add-apt-repository -r ppa:rwky/ppa -y # to avoid conflict with libgraphicsmagick3 (see https://github.com/swig/swig/issues/909)
+        - sudo rm /etc/apt/sources.list.d/rwky*.list* # force complete deletion 
+        - sudo apt-get -qq update
+      apt_packages:
+        - liboctave4.2-dev
